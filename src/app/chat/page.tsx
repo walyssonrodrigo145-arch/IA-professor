@@ -22,8 +22,18 @@ export default function ChatPage() {
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [sessionId, setSessionId] = useState<string>('');
+  const [sessions, setSessions] = useState<{id: string, title: string}[]>([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const loadSessions = () => {
+    fetch('/api/chat/sessions')
+      .then(res => res.json())
+      .then(data => {
+        if (data.sessions) setSessions(data.sessions);
+      })
+      .catch(console.error);
+  };
 
   useEffect(() => {
     let currentSession = localStorage.getItem('mentorMusicalSession');
@@ -32,16 +42,22 @@ export default function ChatPage() {
       localStorage.setItem('mentorMusicalSession', currentSession);
     }
     setSessionId(currentSession);
+    loadSessions();
+  }, []);
 
-    fetch(`/api/chat/history?sessionId=${currentSession}`)
+  useEffect(() => {
+    if (!sessionId) return;
+    fetch(`/api/chat/history?sessionId=${sessionId}`)
       .then(res => res.json())
       .then(data => {
         if (data.messages && data.messages.length > 0) {
           setMessages(data.messages);
+        } else {
+          setMessages([INITIAL_MESSAGE]);
         }
       })
       .catch(e => console.error("Erro ao carregar historico do banco", e));
-  }, []);
+  }, [sessionId]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -65,6 +81,10 @@ export default function ChatPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: newMessages, sessionId }),
       });
+
+      if (messages.length === 1) {
+        setTimeout(loadSessions, 1000);
+      }
 
       const data = await res.json();
       
@@ -125,9 +145,19 @@ export default function ChatPage() {
           <div>
             <h3 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">Histórico</h3>
             <div className="space-y-1">
-              <div className="px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-800/50 rounded-md cursor-pointer truncate">Como usar pentatônica menor...</div>
-              <div className="px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-800/50 rounded-md cursor-pointer truncate">Analise este solo</div>
-              <div className="px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-800/50 rounded-md cursor-pointer truncate">Voicings Neo Soul</div>
+              {sessions.map((session) => (
+                <button
+                  key={session.id}
+                  onClick={() => {
+                    setSessionId(session.id);
+                    localStorage.setItem('mentorMusicalSession', session.id);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors truncate ${sessionId === session.id ? 'bg-zinc-800 text-white' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50'}`}
+                >
+                  {session.title}
+                </button>
+              ))}
             </div>
           </div>
           
