@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { prisma } from '@/lib/prisma';
 
 const apiKey = process.env.GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(apiKey || '');
@@ -41,11 +42,30 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { messages } = body; // Array of { role: 'user' | 'assistant', content: '...' }
+    const { messages, sessionId } = body; // Array of { role: 'user' | 'assistant', content: '...' }
 
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json({ error: 'Formato de mensagens inválido.' }, { status: 400 });
     }
+    
+    if (!sessionId) {
+      return NextResponse.json({ error: 'Session ID is obrigatório.' }, { status: 400 });
+    }
+
+    // Save user message to DB
+    const userMessage = messages[messages.length - 1];
+    await prisma.mentorMessage.create({
+      data: {
+        role: 'user',
+        content: userMessage.content,
+        session: {
+          connectOrCreate: {
+            where: { id: sessionId },
+            create: { id: sessionId },
+          }
+        }
+      }
+    });
 
     const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
 
@@ -75,6 +95,15 @@ export async function POST(req: NextRequest) {
     // Send the latest message
     const result = await chat.sendMessage(latestMessage.parts[0].text);
     const responseText = result.response.text();
+
+    // Save assistant message to DB
+    await prisma.mentorMessage.create({
+      data: {
+        role: 'assistant',
+        content: responseText,
+        sessionId: sessionId,
+      }
+    });
 
     return NextResponse.json({ result: responseText });
 

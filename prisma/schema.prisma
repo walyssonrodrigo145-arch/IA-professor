@@ -1,0 +1,429 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+model MentorSession {
+  id        String    @id @default(uuid())
+  createdAt DateTime  @default(now())
+  messages  MentorMessage[]
+}
+
+model MentorMessage {
+  id        String   @id @default(uuid())
+  role      String   // 'user' or 'assistant'
+  content   String
+  createdAt DateTime @default(now())
+  sessionId String
+  session   MentorSession  @relation(fields: [sessionId], references: [id])
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ai_conversations {
+  id             Int      @id @default(autoincrement())
+  organizationId Int
+  userId         Int
+  title          String   @db.VarChar(255)
+  createdAt      DateTime @default(now()) @db.Timestamp(6)
+  updatedAt      DateTime @default(now()) @db.Timestamp(6)
+}
+
+model ai_messages {
+  id             Int      @id @default(autoincrement())
+  conversationId Int
+  role           String   @db.VarChar(50)
+  content        String
+  createdAt      DateTime @default(now()) @db.Timestamp(6)
+}
+
+model announcements {
+  id              Int      @id @default(autoincrement())
+  organizationId  Int?
+  userId          Int
+  targetStudentId Int?
+  title           String   @db.VarChar(255)
+  content         String
+  important       Boolean  @default(false)
+  createdAt       DateTime @default(now()) @db.Timestamp(6)
+}
+
+model asaas_customers {
+  id              Int      @id @default(autoincrement())
+  organizationId  Int?
+  studentId       Int
+  asaasCustomerId String
+  createdAt       DateTime @default(now()) @db.Timestamp(6)
+}
+
+model chat_messages {
+  id             Int      @id @default(autoincrement())
+  organizationId Int?
+  senderId       Int
+  receiverId     Int
+  content        String
+  isRead         Boolean  @default(false)
+  createdAt      DateTime @default(now()) @db.Timestamp(6)
+}
+
+model chatbot_sessions {
+  id             Int      @id @default(autoincrement())
+  organizationId Int?
+  phone          String   @unique(map: "chatbot_sessions_phone_unique") @db.VarChar(30)
+  state          String   @default("START") @db.VarChar(50)
+  data           String?
+  updatedAt      DateTime @default(now()) @db.Timestamp(6)
+  createdAt      DateTime @default(now()) @db.Timestamp(6)
+}
+
+model expenses {
+  id             Int                @id @default(autoincrement())
+  organizationId Int?
+  userId         Int
+  description    String             @db.VarChar(255)
+  amount         Decimal            @db.Decimal(10, 2)
+  date           DateTime           @db.Date
+  category       String             @db.VarChar(100)
+  status         payment_due_status @default(pendente)
+  receiptUrl     String?
+  notes          String?
+  createdAt      DateTime           @default(now()) @db.Timestamp(6)
+  updatedAt      DateTime           @default(now()) @db.Timestamp(6)
+  supplier       String?            @db.VarChar(255)
+  account        String?            @db.VarChar(255)
+  recurrence     String             @default("unica") @db.VarChar(50)
+}
+
+model instruments {
+  id             Int      @id @default(autoincrement())
+  userId         Int
+  name           String   @db.VarChar(100)
+  category       String   @db.VarChar(100)
+  icon           String?  @db.VarChar(50)
+  color          String?  @db.VarChar(20)
+  createdAt      DateTime @default(now()) @db.Timestamp(6)
+  organizationId Int?
+}
+
+model lessons {
+  id               Int           @id @default(autoincrement())
+  userId           Int
+  studentId        Int?
+  isExperimental   Boolean       @default(false)
+  experimentalName String?       @db.VarChar(255)
+  title            String        @db.VarChar(255)
+  description      String?
+  scheduledAt      DateTime      @db.Timestamp(6)
+  duration         Int           @default(60)
+  status           lesson_status @default(agendada)
+  notes            String?
+  rating           Int?
+  instrumentId     Int?
+  recurringGroupId String?       @db.VarChar(100)
+  createdAt        DateTime      @default(now()) @db.Timestamp(6)
+  updatedAt        DateTime      @default(now()) @db.Timestamp(6)
+  organizationId   Int?
+  lessonType       String?       @default("individual")
+}
+
+model monthly_stats {
+  id               Int      @id @default(autoincrement())
+  userId           Int
+  month            Int
+  year             Int
+  newStudents      Int      @default(0)
+  activeStudents   Int      @default(0)
+  lessonsGiven     Int      @default(0)
+  lessonsCancelled Int      @default(0)
+  revenue          Decimal  @default(0.00) @db.Decimal(12, 2)
+  createdAt        DateTime @default(now()) @db.Timestamp(6)
+  organizationId   Int?
+}
+
+model organizations {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(255)
+  slug      String   @unique @db.VarChar(255)
+  logo      String?
+  active    Boolean  @default(true)
+  ownerId   Int?
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @default(now()) @db.Timestamp(6)
+}
+
+model payment_dues {
+  id               Int                @id @default(autoincrement())
+  userId           Int
+  studentId        Int
+  amount           Decimal            @db.Decimal(10, 2)
+  dueDate          DateTime           @db.Date
+  paidAt           DateTime?          @db.Timestamp(6)
+  status           payment_due_status @default(pendente)
+  month            Int
+  year             Int
+  notes            String?
+  createdAt        DateTime           @default(now()) @db.Timestamp(6)
+  updatedAt        DateTime           @default(now()) @db.Timestamp(6)
+  organizationId   Int?
+  asaasId          String?
+  asaasPaymentLink String?
+  asaasBillingType String?            @db.VarChar(30)
+  receiptUrl       String?
+}
+
+model professores {
+  id             Int      @id @default(autoincrement())
+  userId         Int      @unique(map: "professores_userId_unique")
+  especialidade  String?
+  telefone       String?  @db.VarChar(30)
+  foto           String?
+  createdAt      DateTime @default(now()) @db.Timestamp(6)
+  organizationId Int?
+}
+
+model reminder_templates {
+  id             Int           @id @default(autoincrement())
+  userId         Int
+  name           String        @db.VarChar(100)
+  type           reminder_type @default(manual)
+  body           String
+  isDefault      Int           @default(0)
+  createdAt      DateTime      @default(now()) @db.Timestamp(6)
+  updatedAt      DateTime      @default(now()) @db.Timestamp(6)
+  organizationId Int?
+}
+
+model reminders {
+  id                Int             @id @default(autoincrement())
+  userId            Int
+  studentId         Int?
+  lessonId          Int?
+  paymentDueId      Int?
+  templateId        Int?
+  type              reminder_type   @default(manual)
+  message           String
+  scheduledAt       DateTime        @db.Timestamp(6)
+  status            reminder_status @default(pendente)
+  autoGenerated     Int             @default(0)
+  sentAt            DateTime?       @db.Timestamp(6)
+  cancelledAt       DateTime?       @db.Timestamp(6)
+  refId             String?         @db.VarChar(100)
+  createdAt         DateTime        @default(now()) @db.Timestamp(6)
+  updatedAt         DateTime        @default(now()) @db.Timestamp(6)
+  organizationId    Int?
+  externalMessageId String?         @db.VarChar(255)
+  errorMessage      String?
+}
+
+model reschedule_requests {
+  id             Int      @id @default(autoincrement())
+  organizationId Int?
+  studentId      Int
+  lessonId       Int
+  reason         String
+  preferredDates String
+  status         String   @default("pendente")
+  createdAt      DateTime @default(now()) @db.Timestamp(6)
+}
+
+model settings {
+  id                   Int       @id @default(autoincrement())
+  userId               Int       @unique(map: "settings_userId_unique")
+  phone                String?   @db.VarChar(30)
+  bio                  String?
+  schoolName           String?   @db.VarChar(255)
+  schoolAddress        String?
+  schoolCity           String?   @db.VarChar(100)
+  schoolPhone          String?   @db.VarChar(30)
+  schoolWebsite        String?   @db.VarChar(255)
+  schoolDescription    String?
+  notifyLessonReminder Int       @default(1)
+  notifyPaymentDue     Int       @default(1)
+  notifyStudentAbsence Int       @default(1)
+  notifyNewStudent     Int       @default(1)
+  notifyWeeklyReport   Int       @default(0)
+  automationEnabled    Int       @default(0)
+  automationLastRun    DateTime? @db.Timestamp(6)
+  theme                String?   @default("light") @db.VarChar(20)
+  createdAt            DateTime  @default(now()) @db.Timestamp(6)
+  updatedAt            DateTime  @default(now()) @db.Timestamp(6)
+  organizationId       Int?
+  pixKey               String?
+  hiddenTabs           String    @default("")
+  whatsappBotUrl       String?   @db.VarChar(255)
+  whatsappBotToken     String?
+  whatsappAutoSend     Int       @default(0)
+}
+
+model student_evolution {
+  id             Int      @id @default(autoincrement())
+  organizationId Int?
+  studentId      Int
+  technical      Int      @default(0)
+  rhythm         Int      @default(0)
+  harmony        Int      @default(0)
+  reading        Int      @default(0)
+  recordedAt     DateTime @default(now()) @db.Timestamp(6)
+}
+
+model student_files {
+  id             Int           @id @default(autoincrement())
+  userId         Int
+  studentId      Int
+  fileName       String        @db.VarChar(255)
+  fileType       String        @db.VarChar(100)
+  category       file_category
+  fileUrl        String
+  thumbnailUrl   String?
+  comments       String?
+  size           Int?
+  createdAt      DateTime      @default(now()) @db.Timestamp(6)
+  updatedAt      DateTime      @default(now()) @db.Timestamp(6)
+  organizationId Int?
+}
+
+model student_goals {
+  id             Int         @id @default(autoincrement())
+  userId         Int
+  studentId      Int
+  title          String      @db.VarChar(255)
+  description    String?
+  status         goal_status @default(pendente)
+  targetDate     DateTime?   @db.Date
+  completedAt    DateTime?   @db.Timestamp(6)
+  createdAt      DateTime    @default(now()) @db.Timestamp(6)
+  updatedAt      DateTime    @default(now()) @db.Timestamp(6)
+  organizationId Int?
+}
+
+model student_timeline {
+  id             Int               @id @default(autoincrement())
+  userId         Int
+  studentId      Int
+  title          String            @db.VarChar(255)
+  description    String?
+  category       timeline_category @default(geral)
+  achievedAt     DateTime          @db.Timestamp(6)
+  createdAt      DateTime          @default(now()) @db.Timestamp(6)
+  grade          Decimal?          @db.Decimal(3, 1)
+  organizationId Int?
+}
+
+model students {
+  id             Int       @id @default(autoincrement())
+  professorId    Int
+  name           String    @db.VarChar(255)
+  email          String?   @unique(map: "students_email_unique") @db.VarChar(320)
+  phone          String    @default("") @db.VarChar(30)
+  avatar         String?
+  instrumentId   Int?
+  level          level     @default(iniciante)
+  status         status    @default(ativo)
+  monthlyFee     Decimal   @default(0.00) @db.Decimal(10, 2)
+  startDate      DateTime? @db.Date
+  notes          String?
+  createdAt      DateTime  @default(now()) @db.Timestamp(6)
+  updatedAt      DateTime  @default(now()) @db.Timestamp(6)
+  dueDay         Int       @default(10)
+  studentUserId  Int?
+  socialName     String?   @db.VarChar(255)
+  birthDate      DateTime? @db.Date
+  gender         String?   @db.VarChar(50)
+  cpf            String?   @db.VarChar(20)
+  rg             String?   @db.VarChar(20)
+  address        String?
+  guardianName   String?   @db.VarChar(255)
+  guardianPhone  String?   @db.VarChar(30)
+  guardianEmail  String?   @db.VarChar(320)
+  userId         Int
+  organizationId Int?
+  permissions    Json?
+  lessonType     String?   @default("individual")
+}
+
+model users {
+  id                          Int       @id @default(autoincrement())
+  openId                      String    @unique(map: "users_openId_unique") @db.VarChar(64)
+  name                        String?
+  email                       String?   @db.VarChar(320)
+  passwordHash                String?   @db.VarChar(255)
+  loginMethod                 String?   @db.VarChar(64)
+  role                        role      @default(professor)
+  isEmailVerified             Boolean   @default(false)
+  verificationToken           String?
+  verificationTokenExpiresAt  DateTime? @db.Timestamp(6)
+  resetPasswordToken          String?
+  resetPasswordTokenExpiresAt DateTime? @db.Timestamp(6)
+  createdAt                   DateTime  @default(now()) @db.Timestamp(6)
+  updatedAt                   DateTime  @default(now()) @db.Timestamp(6)
+  lastSignedIn                DateTime  @default(now()) @db.Timestamp(6)
+  studentId                   Int?
+  organizationId              Int?
+}
+
+enum file_category {
+  imagem
+  video
+  pdf
+  audio
+  documento
+}
+
+enum goal_status {
+  pendente
+  concluida
+}
+
+enum lesson_status {
+  agendada
+  concluida
+  cancelada
+  remarcada
+  falta
+}
+
+enum level {
+  iniciante
+  intermediario
+  avancado
+}
+
+enum payment_due_status {
+  pendente
+  pago
+  atrasado
+}
+
+enum reminder_status {
+  pendente
+  enviado
+  cancelado
+}
+
+enum reminder_type {
+  aula
+  cobranca
+  inadimplencia
+  manual
+}
+
+enum role {
+  admin
+  professor
+  aluno
+}
+
+enum status {
+  ativo
+  inativo
+  pausado
+}
+
+enum timeline_category {
+  tecnica
+  teoria
+  repertorio
+  geral
+}

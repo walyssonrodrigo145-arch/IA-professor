@@ -21,29 +21,26 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([INITIAL_MESSAGE]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [isHistoryLoaded, setIsHistoryLoaded] = useState(false);
+  const [sessionId, setSessionId] = useState<string>('');
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem('mentorMusicalHistory');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (parsed && parsed.length > 0) {
-          setMessages(parsed);
-        }
-      } catch (e) {
-        console.error("Erro ao carregar historico", e);
-      }
+    let currentSession = localStorage.getItem('mentorMusicalSession');
+    if (!currentSession) {
+      currentSession = crypto.randomUUID();
+      localStorage.setItem('mentorMusicalSession', currentSession);
     }
-    setIsHistoryLoaded(true);
-  }, []);
+    setSessionId(currentSession);
 
-  useEffect(() => {
-    if (isHistoryLoaded) {
-      localStorage.setItem('mentorMusicalHistory', JSON.stringify(messages));
-    }
-  }, [messages, isHistoryLoaded]);
+    fetch(`/api/chat/history?sessionId=${currentSession}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.messages && data.messages.length > 0) {
+          setMessages(data.messages);
+        }
+      })
+      .catch(e => console.error("Erro ao carregar historico do banco", e));
+  }, []);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -65,7 +62,7 @@ export default function ChatPage() {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: newMessages }),
+        body: JSON.stringify({ messages: newMessages, sessionId }),
       });
 
       const data = await res.json();
@@ -102,8 +99,10 @@ export default function ChatPage() {
         <div className="p-4 border-b border-zinc-800/50">
           <button 
             onClick={() => {
+              const newSession = crypto.randomUUID();
+              localStorage.setItem('mentorMusicalSession', newSession);
+              setSessionId(newSession);
               setMessages([INITIAL_MESSAGE]);
-              localStorage.removeItem('mentorMusicalHistory');
             }}
             className="w-full bg-purple-600/20 text-purple-400 hover:bg-purple-600/30 border border-purple-500/30 flex items-center justify-center gap-2 py-2.5 rounded-lg transition-colors text-sm font-bold"
           >
