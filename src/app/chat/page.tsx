@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { 
   Send, Activity, User, Sparkles, MessageSquare, 
   History, Dumbbell, BookOpen, Music, Settings,
-  Mic, Paperclip, Piano, Download
+  Mic, Paperclip, Piano, Download, Menu, X
 } from 'lucide-react';
 
 interface Message {
@@ -22,6 +22,7 @@ export default function ChatPage() {
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [sessionId, setSessionId] = useState<string>('');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -92,21 +93,31 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="h-[calc(100vh-80px)] bg-zinc-950 text-zinc-100 flex overflow-hidden">
+    <div className="h-[calc(100dvh-64px)] md:h-[calc(100vh-80px)] bg-zinc-950 text-zinc-100 flex overflow-hidden relative">
       
-      {/* Sidebar Mock */}
-      <aside className="w-64 border-r border-zinc-800/50 bg-zinc-900/30 hidden md:flex flex-col h-[calc(100vh-80px)]">
-        <div className="p-4 border-b border-zinc-800/50">
+      {/* Sidebar Overlay Mobile */}
+      <div 
+        className={`fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden transition-opacity duration-300 ${isMobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`} 
+        onClick={() => setIsMobileMenuOpen(false)} 
+      />
+      
+      {/* Sidebar */}
+      <aside className={`absolute md:static top-0 left-0 h-full w-72 md:w-64 border-r border-zinc-800/50 bg-zinc-900/95 md:bg-zinc-900/30 backdrop-blur-xl md:backdrop-blur-none z-50 flex flex-col transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+        <div className="p-4 border-b border-zinc-800/50 flex items-center justify-between">
           <button 
             onClick={() => {
               const newSession = crypto.randomUUID();
               localStorage.setItem('mentorMusicalSession', newSession);
               setSessionId(newSession);
               setMessages([INITIAL_MESSAGE]);
+              setIsMobileMenuOpen(false);
             }}
-            className="w-full bg-purple-600/20 text-purple-400 hover:bg-purple-600/30 border border-purple-500/30 flex items-center justify-center gap-2 py-2.5 rounded-lg transition-colors text-sm font-bold"
+            className="flex-1 bg-purple-600/20 text-purple-400 hover:bg-purple-600/30 border border-purple-500/30 flex items-center justify-center gap-2 py-2.5 rounded-lg transition-colors text-sm font-bold"
           >
             <MessageSquare className="w-4 h-4" /> Nova Conversa
+          </button>
+          <button className="md:hidden ml-3 text-zinc-400 hover:text-white" onClick={() => setIsMobileMenuOpen(false)}>
+            <X className="w-6 h-6" />
           </button>
         </div>
         
@@ -142,17 +153,40 @@ export default function ChatPage() {
       </aside>
 
       {/* Main Chat Area */}
-      <main className="flex-1 flex flex-col h-full">
+      <main className="flex-1 flex flex-col h-full w-full max-w-full overflow-hidden">
+        
+        {/* Mobile Header */}
+        <div className="md:hidden flex items-center justify-between p-3 border-b border-zinc-800/50 bg-zinc-950/80 backdrop-blur-md flex-shrink-0">
+          <button onClick={() => setIsMobileMenuOpen(true)} className="text-zinc-400 p-2 hover:text-white">
+            <Menu className="w-6 h-6" />
+          </button>
+          <div className="font-semibold text-sm text-zinc-200 flex items-center gap-2">
+             <Piano className="w-4 h-4 text-purple-400" />
+             Mentor Musical
+          </div>
+          <button 
+            onClick={() => {
+              const newSession = crypto.randomUUID();
+              localStorage.setItem('mentorMusicalSession', newSession);
+              setSessionId(newSession);
+              setMessages([INITIAL_MESSAGE]);
+            }} 
+            className="text-purple-400 p-2 hover:text-purple-300"
+          >
+            <MessageSquare className="w-5 h-5" />
+          </button>
+        </div>
+
         <div 
           ref={scrollRef}
-          className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6"
+          className="flex-1 overflow-y-auto p-3 md:p-8 space-y-4 md:space-y-6"
         >
           {messages.map((msg, idx) => (
-            <div key={idx} className={`flex gap-4 max-w-4xl mx-auto ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
-              <div className={`w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center ${msg.role === 'assistant' ? 'bg-gradient-to-br from-purple-600 to-blue-600 shadow-lg shadow-purple-500/20' : 'bg-zinc-800'}`}>
-                {msg.role === 'assistant' ? <Piano className="w-5 h-5 text-white" /> : <User className="w-5 h-5 text-zinc-400" />}
+            <div key={idx} className={`flex gap-3 md:gap-4 max-w-4xl mx-auto ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
+              <div className={`w-8 h-8 md:w-10 md:h-10 rounded-xl flex-shrink-0 flex items-center justify-center ${msg.role === 'assistant' ? 'bg-gradient-to-br from-purple-600 to-blue-600 shadow-lg shadow-purple-500/20' : 'bg-zinc-800'}`}>
+                {msg.role === 'assistant' ? <Piano className="w-4 h-4 md:w-5 md:h-5 text-white" /> : <User className="w-4 h-4 md:w-5 md:h-5 text-zinc-400" />}
               </div>
-              <div className={`flex-1 px-5 py-4 rounded-2xl text-[15px] leading-relaxed shadow-sm ${msg.role === 'assistant' ? 'bg-zinc-900 border border-zinc-800/50 text-zinc-300' : 'bg-purple-600/10 border border-purple-500/20 text-zinc-200'}`}>
+              <div className={`flex-1 px-4 py-3 md:px-5 md:py-4 rounded-2xl text-[14px] md:text-[15px] leading-relaxed shadow-sm ${msg.role === 'assistant' ? 'bg-zinc-900 border border-zinc-800/50 text-zinc-300' : 'bg-purple-600/10 border border-purple-500/20 text-zinc-200'}`}>
                 {msg.content.split('\n').map((line, i) => {
                   let cleanLine = line.split('**').join('').split('$').join('');
                   if (cleanLine.trim() === '---') {
@@ -196,12 +230,12 @@ export default function ChatPage() {
         </div>
 
         {/* Input Bar */}
-        <div className="p-4 md:p-6 bg-zinc-950 border-t border-zinc-800/50">
+        <div className="p-3 md:p-6 bg-zinc-950 border-t border-zinc-800/50 flex-shrink-0 pb-safe">
           <form onSubmit={handleSubmit} className="max-w-4xl mx-auto relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-2xl blur-lg transition-all duration-300" />
-            <div className="relative bg-zinc-900/80 backdrop-blur-xl border border-zinc-700/50 rounded-2xl flex items-end p-2 shadow-2xl focus-within:border-purple-500/50 transition-colors">
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-2xl blur-lg transition-all duration-300 hidden md:block" />
+            <div className="relative bg-zinc-900/90 backdrop-blur-xl border border-zinc-700/50 rounded-2xl flex items-end p-1.5 md:p-2 shadow-2xl focus-within:border-purple-500/50 transition-colors">
               
-              <button type="button" className="p-3 text-zinc-400 hover:text-zinc-200 transition-colors">
+              <button type="button" className="p-2 md:p-3 text-zinc-400 hover:text-zinc-200 transition-colors">
                 <Paperclip className="w-5 h-5" />
               </button>
 
@@ -214,26 +248,26 @@ export default function ChatPage() {
                     handleSubmit(e);
                   }
                 }}
-                placeholder="Pergunte sobre teoria, acordes, voicings..."
-                className="flex-1 bg-transparent border-none outline-none px-2 py-3 text-[15px] text-white placeholder-zinc-500 resize-none max-h-32 min-h-[44px]"
+                placeholder="Pergunte ao Mentor..."
+                className="flex-1 bg-transparent border-none outline-none px-2 py-2 md:py-3 text-[15px] md:text-[15px] text-white placeholder-zinc-500 resize-none max-h-24 md:max-h-32 min-h-[40px] md:min-h-[44px]"
                 rows={1}
                 disabled={isTyping}
               />
 
-              <button type="button" className="p-3 text-zinc-400 hover:text-zinc-200 transition-colors">
+              <button type="button" className="p-2 md:p-3 text-zinc-400 hover:text-zinc-200 transition-colors">
                 <Mic className="w-5 h-5" />
               </button>
 
               <button 
                 type="submit"
                 disabled={isTyping || !input.trim()}
-                className="bg-purple-600 hover:bg-purple-500 disabled:opacity-50 disabled:hover:bg-purple-600 text-white p-3 ml-2 rounded-xl transition-colors flex items-center justify-center flex-shrink-0"
+                className="bg-purple-600 hover:bg-purple-500 disabled:opacity-50 disabled:hover:bg-purple-600 text-white p-2 md:p-3 ml-1 md:ml-2 rounded-xl transition-colors flex items-center justify-center flex-shrink-0"
               >
-                <Send className="w-5 h-5" />
+                <Send className="w-4 h-4 md:w-5 md:h-5" />
               </button>
             </div>
             <div className="text-center mt-2">
-              <p className="text-[11px] text-zinc-500">O Mentor Musical pode cometer erros de harmonia avançada. Considere conferir no teclado.</p>
+              <p className="text-[10px] md:text-[11px] text-zinc-500">O Mentor Musical pode cometer erros de harmonia. Considere conferir no teclado.</p>
             </div>
           </form>
         </div>
