@@ -1,65 +1,250 @@
-import Image from "next/image";
+"use client";
+
+import React, { useState, useRef } from 'react';
+import { 
+  Upload, Music, FileAudio, FileText, PlayCircle, Piano, Layers,
+  Activity, MessageSquare, BookOpen, Sparkles, ChevronRight, ListVideo
+} from 'lucide-react';
 
 export default function Home() {
+  const [isHovering, setIsHovering] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [showResults, setShowResults] = useState(false);
+  const [analysisSections, setAnalysisSections] = useState<any[]>([]);
+  const [fileName, setFileName] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsHovering(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      processFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      processFile(e.target.files[0]);
+    }
+  };
+
+  const processFile = async (file: File) => {
+    const validExtensions = ['.mid', '.midi', '.pdf'];
+    const lowerName = file.name.toLowerCase();
+    
+    if (!validExtensions.some(ext => lowerName.endsWith(ext))) {
+      alert("Por favor envie um arquivo MIDI (.mid) ou uma Partitura (.pdf)");
+      return;
+    }
+
+    setFileName(file.name);
+    setIsAnalyzing(true);
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await fetch('/api/analyze', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(data.error || 'Erro desconhecido');
+      }
+
+      // Parse the markdown string into sections
+      const text = data.result as string;
+      const parsedSections = parseMarkdownToSections(text);
+      setAnalysisSections(parsedSections);
+      setShowResults(true);
+
+    } catch (err: any) {
+      alert("Erro ao analisar: " + err.message);
+    } finally {
+      setIsAnalyzing(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  // Helper to parse the prompt's strict 9-section markdown
+  const parseMarkdownToSections = (markdown: string) => {
+    const sectionsRaw = markdown.split(/##\s+/).filter(Boolean);
+    const sections = sectionsRaw.map(section => {
+      const lines = section.split('\n');
+      const title = lines[0].trim();
+      const content = lines.slice(1).join('\n').trim();
+      return { title, content };
+    });
+    return sections;
+  };
+
+  const getIconForSection = (index: number) => {
+    const icons = [
+      <PlayCircle className="w-5 h-5 text-blue-400" />,
+      <Layers className="w-5 h-5 text-purple-400" />,
+      <Piano className="w-5 h-5 text-indigo-400" />,
+      <Music className="w-5 h-5 text-emerald-400" />,
+      <Activity className="w-5 h-5 text-amber-400" />,
+      <Sparkles className="w-5 h-5 text-pink-400" />,
+      <MessageSquare className="w-5 h-5 text-cyan-400" />,
+      <ListVideo className="w-5 h-5 text-orange-400" />,
+      <BookOpen className="w-5 h-5 text-rose-400" />
+    ];
+    return icons[index] || <Layers className="w-5 h-5" />;
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans selection:bg-purple-500/30">
+      <input 
+        type="file" 
+        ref={fileInputRef} 
+        onChange={handleFileChange} 
+        accept=".mid,.midi,.pdf" 
+        className="hidden" 
+      />
+
+
+      <main className="max-w-5xl mx-auto px-6 py-12">
+        {!showResults && (
+          <div className="text-center max-w-2xl mx-auto mb-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">
+              Análise Harmônica Profunda
+            </h2>
+            <p className="text-lg text-zinc-400 leading-relaxed">
+              Faça upload de seu arquivo MIDI ou Partitura (PDF). Nossa IA especialista vai destrinchar cada detalhe da harmonia, voicings e linguagem.
+            </p>
+          </div>
+        )}
+
+        {!showResults && (
+          <div 
+            onDrop={handleDrop}
+            onDragOver={(e) => { e.preventDefault(); setIsHovering(true); }}
+            onDragLeave={() => setIsHovering(false)}
+            className={`
+              relative group overflow-hidden rounded-3xl border-2 border-dashed transition-all duration-300 ease-out flex flex-col items-center justify-center p-16
+              ${isHovering ? 'border-purple-500 bg-purple-500/10 scale-[1.02]' : 'border-zinc-800 bg-zinc-900/50 hover:border-zinc-700 hover:bg-zinc-900'}
+              ${isAnalyzing ? 'opacity-50 pointer-events-none' : ''}
+            `}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+            <div className="absolute inset-0 bg-gradient-to-b from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            
+            <div className="relative z-10 flex flex-col items-center">
+              <div className="flex gap-4 mb-6">
+                <div className="w-14 h-14 rounded-2xl bg-zinc-800 flex items-center justify-center shadow-md rotate-[-6deg] group-hover:rotate-0 transition-all duration-300">
+                  <FileText className="text-blue-400 w-7 h-7" />
+                </div>
+                <div className="w-16 h-16 rounded-2xl bg-zinc-800 flex items-center justify-center shadow-lg z-10 group-hover:-translate-y-2 transition-all duration-300 border border-zinc-700">
+                  <Music className="text-purple-400 w-8 h-8" />
+                </div>
+              </div>
+              
+              <h3 className="text-2xl font-bold mb-2">
+                {isHovering ? 'Solte para analisar!' : 'Arraste seu PDF ou MIDI aqui'}
+              </h3>
+              <p className="text-zinc-400 mb-8 max-w-sm text-center">
+                Suporta arquivos .mid, .midi e partituras em .pdf
+              </p>
+              
+              <button 
+                onClick={() => fileInputRef.current?.click()}
+                className="relative overflow-hidden rounded-full bg-white text-black px-8 py-3 font-semibold hover:scale-105 transition-transform active:scale-95 flex items-center gap-2 group/btn"
+              >
+                {isAnalyzing ? (
+                  <>
+                    <Activity className="w-5 h-5 animate-pulse" />
+                    Lendo a Partitura com Gemini...
+                  </>
+                ) : (
+                  <>
+                    Procurar no Computador
+                    <ChevronRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {showResults && (
+          <div className="animate-in fade-in slide-in-from-bottom-8 duration-700">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider bg-purple-500/20 text-purple-300 rounded-md">Análise Concluída</span>
+                  <span className="text-zinc-500 text-sm">{fileName}</span>
+                </div>
+                <h2 className="text-3xl font-bold">Resultado da Masterclass</h2>
+              </div>
+              <button 
+                onClick={() => setShowResults(false)}
+                className="text-sm font-medium text-zinc-400 hover:text-white flex items-center gap-2"
+              >
+                <Upload className="w-4 h-4" /> Novo Upload
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+              <div className="hidden md:block col-span-3">
+                <div className="sticky top-28 flex flex-col gap-3 border-l-2 border-zinc-800/80 pl-6">
+                  {analysisSections.map((item, i) => (
+                    <a 
+                      key={item.title} 
+                      href={`#section-${i}`} 
+                      className="text-[15px] py-2 px-3 rounded-lg transition-all text-zinc-400 hover:text-white hover:bg-zinc-800/50 hover:pl-4 font-medium"
+                    >
+                      {item.title}
+                    </a>
+                  ))}
+                </div>
+              </div>
+
+              <div className="col-span-1 md:col-span-9 space-y-6">
+                {analysisSections.map((section, i) => (
+                  <SectionCard 
+                    key={section.title}
+                    id={`section-${i}`}
+                    icon={getIconForSection(i)}
+                    title={section.title}
+                    content={section.content}
+                    highlight={i === analysisSections.length - 1} 
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </main>
+    </div>
+  );
+}
+
+function SectionCard({ id, icon, title, content, highlight = false }: { id: string, icon: React.ReactNode, title: string, content: string, highlight?: boolean }) {
+  const formatContent = (text: string) => {
+    return text.split('\n').map((line, idx) => {
+      // Remove asteriscos que a IA pode gerar acidentalmente
+      let cleanLine = line.replace(/\*\*/g, ''); 
+      if (cleanLine.trim().startsWith('- ') || cleanLine.trim().startsWith('* ')) {
+        return <li key={idx} className="ml-5 list-disc mb-2 text-zinc-300">{cleanLine.substring(2)}</li>;
+      }
+      return <p key={idx} className="mb-4 text-zinc-300 leading-relaxed">{cleanLine}</p>;
+    });
+  };
+
+  return (
+    <div id={id} className={`p-6 rounded-2xl border ${highlight ? 'bg-gradient-to-br from-zinc-900 to-purple-900/20 border-purple-500/30 shadow-lg shadow-purple-500/5' : 'bg-zinc-900/40 border-zinc-800/80 hover:bg-zinc-900/80 transition-colors'}`}>
+      <div className="flex items-center gap-3 mb-4">
+        <div className={`p-2 rounded-lg ${highlight ? 'bg-purple-500/20' : 'bg-zinc-800'}`}>
+          {icon}
+        </div>
+        <h3 className="text-xl font-bold text-white tracking-tight">{title}</h3>
+      </div>
+      <div className="text-zinc-400 leading-relaxed text-[15px]">
+        {formatContent(content)}
+      </div>
     </div>
   );
 }
