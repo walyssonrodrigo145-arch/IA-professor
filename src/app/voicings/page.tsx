@@ -159,7 +159,7 @@ export default function VoicingsPage() {
                         <div className="p-2 rounded-lg bg-zinc-800">
                           {getIconForSection(i)}
                         </div>
-                        <h4 className="text-xl font-bold text-white">Visualização no Teclado</h4>
+                        <h4 className="text-xl font-bold text-white">Visualização do Voicing</h4>
                      </div>
                      <PianoKeyboard activeNotes={notesArray} />
                   </div>
