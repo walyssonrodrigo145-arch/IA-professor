@@ -339,7 +339,7 @@ export default function ChatPage() {
           <form onSubmit={handleSubmit} className="max-w-4xl mx-auto relative flex flex-col gap-2">
             
             {attachedFile && (
-              <div className="bg-zinc-800/80 backdrop-blur-md rounded-xl p-2 px-3 flex items-center justify-between w-max shadow-lg ml-2">
+              <div className="bg-zinc-800/80 backdrop-blur-md rounded-xl p-2 px-3 flex items-center justify-between w-max shadow-lg ml-2 relative z-10">
                 <span className="text-xs text-zinc-300 font-medium truncate max-w-[200px]">{attachedFile.name}</span>
                 <button type="button" onClick={() => setAttachedFile(null)} className="text-zinc-400 hover:text-red-400 ml-3">
                   <X className="w-4 h-4" />
