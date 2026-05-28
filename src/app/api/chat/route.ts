@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { messages, sessionId } = body; // Array of { role: 'user' | 'assistant', content: '...' }
+    const { messages, sessionId, attachedFile } = body; 
 
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json({ error: 'Formato de mensagens inválido.' }, { status: 400 });
@@ -54,10 +54,15 @@ export async function POST(req: NextRequest) {
 
     // Save user message to DB
     const userMessage = messages[messages.length - 1];
+    let dbContent = userMessage.content;
+    if (attachedFile) {
+      dbContent = dbContent ? `${dbContent}\n\n[Anexo: ${attachedFile.name}]` : `[Anexo: ${attachedFile.name}]`;
+    }
+
     await prisma.mentorMessage.create({
       data: {
         role: 'user',
-        content: userMessage.content,
+        content: dbContent,
         session: {
           connectOrCreate: {
             where: { id: sessionId },
@@ -67,13 +72,26 @@ export async function POST(req: NextRequest) {
       }
     });
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     // Map messages to Gemini's format
-    const geminiHistory = messages.map((msg: any) => ({
-      role: msg.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: msg.content }]
-    }));
+    const geminiHistory = messages.map((msg: any, index: number) => {
+      const parts: any[] = [{ text: msg.content || '' }];
+      
+      if (index === messages.length - 1 && attachedFile) {
+         parts.push({
+           inlineData: {
+             data: attachedFile.data,
+             mimeType: attachedFile.mimeType
+           }
+         });
+      }
+
+      return {
+        role: msg.role === 'assistant' ? 'model' : 'user',
+        parts
+      };
+    });
 
     // Gemini requires the history to start with a 'user' message.
     // The frontend sends an initial hardcoded 'assistant' greeting, so we remove it.
@@ -92,8 +110,8 @@ export async function POST(req: NextRequest) {
 
     const latestMessage = geminiHistory[geminiHistory.length - 1];
     
-    // Send the latest message
-    const result = await chat.sendMessage(latestMessage.parts[0].text);
+    // Send the latest message (array of parts to support multimodal)
+    const result = await chat.sendMessage(latestMessage.parts);
     const responseText = result.response.text();
 
     // Save assistant message to DB

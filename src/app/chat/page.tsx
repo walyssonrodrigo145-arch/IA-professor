@@ -24,7 +24,14 @@ export default function ChatPage() {
   const [sessionId, setSessionId] = useState<string>('');
   const [sessions, setSessions] = useState<{id: string, title: string}[]>([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  const [attachedFile, setAttachedFile] = useState<{name: string, data: string, mimeType: string} | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  
   const scrollRef = useRef<HTMLDivElement>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<BlobPart[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const loadSessions = () => {
     fetch('/api/chat/sessions')
@@ -59,6 +66,72 @@ export default function ChatPage() {
       .catch(e => console.error("Erro ao carregar historico do banco", e));
   }, [sessionId]);
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 4 * 1024 * 1024) {
+      alert('Arquivo muito grande! Máximo de 4MB.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const base64Url = event.target?.result as string;
+      const base64Data = base64Url.split(',')[1];
+      setAttachedFile({
+        name: file.name,
+        data: base64Data,
+        mimeType: file.type
+      });
+    };
+    reader.readAsDataURL(file);
+    e.target.value = ''; // Reset input
+  };
+
+  const toggleRecording = async () => {
+    if (isRecording) {
+      mediaRecorderRef.current?.stop();
+      setIsRecording(false);
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) {
+          audioChunksRef.current.push(e.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const base64Url = event.target?.result as string;
+          const base64Data = base64Url.split(',')[1];
+          setAttachedFile({
+            name: 'gravacao.webm',
+            data: base64Data,
+            mimeType: 'audio/webm'
+          });
+        };
+        reader.readAsDataURL(audioBlob);
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+    } catch (err) {
+      console.error('Erro ao acessar microfone:', err);
+      alert('Permissão de microfone negada ou indisponível.');
+    }
+  };
+
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -79,8 +152,10 @@ export default function ChatPage() {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: newMessages, sessionId }),
+        body: JSON.stringify({ messages: newMessages, sessionId, attachedFile }),
       });
+      
+      setAttachedFile(null);
 
       if (messages.length === 1) {
         setTimeout(loadSessions, 1000);
@@ -261,36 +336,54 @@ export default function ChatPage() {
 
         {/* Input Bar */}
         <div className="p-3 md:p-6 bg-zinc-950 border-t border-zinc-800/50 flex-shrink-0 pb-safe">
-          <form onSubmit={handleSubmit} className="max-w-4xl mx-auto relative">
+          <form onSubmit={handleSubmit} className="max-w-4xl mx-auto relative flex flex-col gap-2">
+            
+            {attachedFile && (
+              <div className="bg-zinc-800/80 backdrop-blur-md rounded-xl p-2 px-3 flex items-center justify-between w-max shadow-lg ml-2">
+                <span className="text-xs text-zinc-300 font-medium truncate max-w-[200px]">{attachedFile.name}</span>
+                <button type="button" onClick={() => setAttachedFile(null)} className="text-zinc-400 hover:text-red-400 ml-3">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+
             <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-2xl blur-lg transition-all duration-300 hidden md:block" />
-            <div className="relative bg-zinc-900/90 backdrop-blur-xl border border-zinc-700/50 rounded-2xl flex items-end p-1.5 md:p-2 shadow-2xl focus-within:border-purple-500/50 transition-colors">
+            <div className={`relative bg-zinc-900/90 backdrop-blur-xl border border-zinc-700/50 rounded-2xl flex items-end p-1.5 md:p-2 shadow-2xl transition-colors ${isRecording ? 'border-red-500/50 shadow-red-500/20' : 'focus-within:border-purple-500/50'}`}>
               
-              <button type="button" className="p-2 md:p-3 text-zinc-400 hover:text-zinc-200 transition-colors">
+              <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*,audio/*" />
+
+              <button type="button" onClick={() => fileInputRef.current?.click()} className="p-2 md:p-3 text-zinc-400 hover:text-zinc-200 transition-colors">
                 <Paperclip className="w-5 h-5" />
               </button>
 
-              <textarea 
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSubmit(e);
-                  }
-                }}
-                placeholder="Pergunte ao Mentor..."
-                className="flex-1 bg-transparent border-none outline-none px-2 py-2 md:py-3 text-[15px] md:text-[15px] text-white placeholder-zinc-500 resize-none max-h-24 md:max-h-32 min-h-[40px] md:min-h-[44px]"
-                rows={1}
-                disabled={isTyping}
-              />
+              {isRecording ? (
+                 <div className="flex-1 flex items-center justify-center py-2 md:py-3 text-red-400 font-medium animate-pulse text-sm">
+                   Gravando áudio... Clique no microfone para parar.
+                 </div>
+              ) : (
+                <textarea 
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSubmit(e);
+                    }
+                  }}
+                  placeholder="Pergunte ao Mentor..."
+                  className="flex-1 bg-transparent border-none outline-none px-2 py-2 md:py-3 text-[15px] md:text-[15px] text-white placeholder-zinc-500 resize-none max-h-24 md:max-h-32 min-h-[40px] md:min-h-[44px]"
+                  rows={1}
+                  disabled={isTyping}
+                />
+              )}
 
-              <button type="button" className="p-2 md:p-3 text-zinc-400 hover:text-zinc-200 transition-colors">
+              <button type="button" onClick={toggleRecording} className={`p-2 md:p-3 transition-colors ${isRecording ? 'text-red-500 animate-pulse' : 'text-zinc-400 hover:text-zinc-200'}`}>
                 <Mic className="w-5 h-5" />
               </button>
 
               <button 
                 type="submit"
-                disabled={isTyping || !input.trim()}
+                disabled={isTyping || (!input.trim() && !attachedFile)}
                 className="bg-purple-600 hover:bg-purple-500 disabled:opacity-50 disabled:hover:bg-purple-600 text-white p-2 md:p-3 ml-1 md:ml-2 rounded-xl transition-colors flex items-center justify-center flex-shrink-0"
               >
                 <Send className="w-4 h-4 md:w-5 md:h-5" />
