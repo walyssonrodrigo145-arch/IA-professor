@@ -6,6 +6,7 @@ import {
   Layers, Key, Hash, LayoutList, Fingerprint, 
   Ear, Lightbulb, ArrowRightLeft, Spline
 } from 'lucide-react';
+import PianoKeyboard from '@/components/PianoKeyboard';
 
 export default function VoicingsPage() {
   const [prompt, setPrompt] = useState('');
@@ -79,7 +80,8 @@ export default function VoicingsPage() {
       <Ear className="w-5 h-5 text-cyan-400" />,           // 6. Tipo de sonoridade
       <Lightbulb className="w-5 h-5 text-amber-400" />,    // 7. Aplicação prática
       <ArrowRightLeft className="w-5 h-5 text-orange-400" />,// 8. Possíveis resoluções
-      <Spline className="w-5 h-5 text-rose-400" />         // 9. Voice leading sugerido
+      <Spline className="w-5 h-5 text-rose-400" />,         // 9. Voice leading sugerido
+      <Piano className="w-5 h-5 text-indigo-400" />         // 10. Notas Exatas
     ];
     return icons[index] || <LayoutList className="w-5 h-5" />;
   };
@@ -146,28 +148,47 @@ export default function VoicingsPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {results.map((section, i) => (
-              <div 
-                key={i} 
-                className={`p-5 rounded-2xl bg-zinc-900 border border-zinc-800 hover:border-zinc-700 transition-colors ${i >= 2 && i <= 3 ? 'bg-gradient-to-br from-zinc-900 to-purple-900/10 border-purple-500/20' : ''}`}
-              >
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 rounded-lg bg-zinc-800">
-                    {getIconForSection(i)}
+            {results.map((section, i) => {
+              const isNotasExatas = section.title.toLowerCase().includes('notas exatas');
+              
+              if (isNotasExatas) {
+                const notesArray = section.content.split(',').map((n: string) => n.trim());
+                return (
+                  <div key={i} className="col-span-1 md:col-span-2 lg:col-span-3 mt-4 mb-4">
+                     <div className="flex items-center gap-3 mb-6">
+                        <div className="p-2 rounded-lg bg-zinc-800">
+                          {getIconForSection(i)}
+                        </div>
+                        <h4 className="text-xl font-bold text-white">Visualização no Teclado</h4>
+                     </div>
+                     <PianoKeyboard activeNotes={notesArray} />
                   </div>
-                  <h4 className="text-lg font-bold text-white">{section.title}</h4>
+                );
+              }
+
+              return (
+                <div 
+                  key={i} 
+                  className={`p-5 rounded-2xl bg-zinc-900 border border-zinc-800 hover:border-zinc-700 transition-colors ${i >= 2 && i <= 3 ? 'bg-gradient-to-br from-zinc-900 to-purple-900/10 border-purple-500/20' : ''}`}
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="p-2 rounded-lg bg-zinc-800">
+                      {getIconForSection(i)}
+                    </div>
+                    <h4 className="text-lg font-bold text-white">{section.title}</h4>
+                  </div>
+                  <div className="text-zinc-400 text-sm leading-relaxed">
+                    {section.content.split('\n').map((line: string, idx: number) => {
+                      let cleanLine = line.replace(/\*\*/g, '');
+                      if (cleanLine.trim().startsWith('- ') || cleanLine.trim().startsWith('* ')) {
+                        return <li key={idx} className="ml-4 list-disc mb-1">{cleanLine.substring(2)}</li>;
+                      }
+                      return <p key={idx} className="mb-2">{cleanLine}</p>;
+                    })}
+                  </div>
                 </div>
-                <div className="text-zinc-400 text-sm leading-relaxed">
-                  {section.content.split('\n').map((line: string, idx: number) => {
-                    let cleanLine = line.replace(/\*\*/g, '');
-                    if (cleanLine.trim().startsWith('- ') || cleanLine.trim().startsWith('* ')) {
-                      return <li key={idx} className="ml-4 list-disc mb-1">{cleanLine.substring(2)}</li>;
-                    }
-                    return <p key={idx} className="mb-2">{cleanLine}</p>;
-                  })}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

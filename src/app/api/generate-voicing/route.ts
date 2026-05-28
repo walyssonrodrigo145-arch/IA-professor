@@ -61,6 +61,9 @@ Responda EXATAMENTE neste formato (em texto puro, SEM USAR asteriscos '**' para 
 
 ## 9. Voice leading sugerido
 [Texto simples]
+
+## 10. Notas Exatas
+[Apenas as notas absolutas separadas por vírgula no formato americano com oitava. Exemplo: C3, E3, G3, B3, D4. Não escreva mais nada nesta seção.]
 `;
 
 export async function POST(req: NextRequest) {
