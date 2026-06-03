@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { messages, sessionId, attachedFile } = body; 
+    const { messages, sessionId, attachedFile, deviceId } = body; 
 
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json({ error: 'Formato de mensagens inválido.' }, { status: 400 });
@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
         session: {
           connectOrCreate: {
             where: { id: sessionId },
-            create: { id: sessionId },
+            create: { id: sessionId, deviceId: deviceId || 'unknown' },
           }
         }
       }

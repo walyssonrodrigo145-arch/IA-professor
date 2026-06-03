@@ -3,9 +3,17 @@ import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
+    const { searchParams } = new URL(req.url);
+    const deviceId = searchParams.get('deviceId');
+
+    if (!deviceId) {
+      return NextResponse.json({ sessions: [] });
+    }
+
     const sessions = await prisma.mentorSession.findMany({
+      where: { deviceId },
       orderBy: { createdAt: 'desc' },
       include: {
         messages: {

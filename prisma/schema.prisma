@@ -5,6 +5,7 @@ generator client {
 model MentorSession {
   id        String    @id @default(uuid())
   createdAt DateTime  @default(now())
+  deviceId  String?   @db.VarChar(255)
   messages  MentorMessage[]
 }
 
