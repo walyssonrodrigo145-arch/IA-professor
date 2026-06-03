@@ -83,21 +83,21 @@ export default function Home() {
 
   const getIconForSection = (index: number) => {
     const icons = [
-      <PlayCircle className="w-5 h-5 text-blue-400" />,
-      <Layers className="w-5 h-5 text-purple-400" />,
-      <Piano className="w-5 h-5 text-indigo-400" />,
-      <Music className="w-5 h-5 text-emerald-400" />,
-      <Activity className="w-5 h-5 text-amber-400" />,
-      <Sparkles className="w-5 h-5 text-pink-400" />,
-      <MessageSquare className="w-5 h-5 text-cyan-400" />,
-      <ListVideo className="w-5 h-5 text-orange-400" />,
-      <BookOpen className="w-5 h-5 text-rose-400" />
+      <PlayCircle className="w-5 h-5 text-zinc-300" />,
+      <Layers className="w-5 h-5 text-zinc-300" />,
+      <Piano className="w-5 h-5 text-zinc-300" />,
+      <Music className="w-5 h-5 text-zinc-300" />,
+      <Activity className="w-5 h-5 text-zinc-300" />,
+      <Sparkles className="w-5 h-5 text-zinc-300" />,
+      <MessageSquare className="w-5 h-5 text-zinc-300" />,
+      <ListVideo className="w-5 h-5 text-zinc-300" />,
+      <BookOpen className="w-5 h-5 text-zinc-300" />
     ];
-    return icons[index] || <Layers className="w-5 h-5" />;
+    return icons[index] || <Layers className="w-5 h-5 text-zinc-300" />;
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans selection:bg-purple-500/30">
+    <div className="min-h-screen bg-black text-zinc-100 font-sans selection:bg-white/30 selection:text-black">
       <input 
         type="file" 
         ref={fileInputRef} 
@@ -110,7 +110,7 @@ export default function Home() {
       <main className="max-w-5xl mx-auto px-6 py-12">
         {!showResults && (
           <div className="text-center max-w-2xl mx-auto mb-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">
+            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 text-white">
               Análise Harmônica Profunda
             </h2>
             <p className="text-lg text-zinc-400 leading-relaxed">
@@ -126,23 +126,23 @@ export default function Home() {
             onDragLeave={() => setIsHovering(false)}
             className={`
               relative group overflow-hidden rounded-3xl border-2 border-dashed transition-all duration-300 ease-out flex flex-col items-center justify-center p-16
-              ${isHovering ? 'border-purple-500 bg-purple-500/10 scale-[1.02]' : 'border-zinc-800 bg-zinc-900/50 hover:border-zinc-700 hover:bg-zinc-900'}
+              ${isHovering ? 'border-white bg-white/5 scale-[1.02]' : 'border-zinc-800 bg-zinc-900/50 hover:border-zinc-600 hover:bg-zinc-900'}
               ${isAnalyzing ? 'opacity-50 pointer-events-none' : ''}
             `}
           >
-            <div className="absolute inset-0 bg-gradient-to-b from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             
             <div className="relative z-10 flex flex-col items-center">
               <div className="flex gap-4 mb-6">
                 <div className="w-14 h-14 rounded-2xl bg-zinc-800 flex items-center justify-center shadow-md rotate-[-6deg] group-hover:rotate-0 transition-all duration-300">
-                  <FileText className="text-blue-400 w-7 h-7" />
+                  <FileText className="text-zinc-400 w-7 h-7" />
                 </div>
-                <div className="w-16 h-16 rounded-2xl bg-zinc-800 flex items-center justify-center shadow-lg z-10 group-hover:-translate-y-2 transition-all duration-300 border border-zinc-700">
-                  <Music className="text-purple-400 w-8 h-8" />
+                <div className="w-16 h-16 rounded-2xl bg-white flex items-center justify-center shadow-lg z-10 group-hover:-translate-y-2 transition-all duration-300 border border-zinc-200">
+                  <Music className="text-black w-8 h-8" />
                 </div>
               </div>
               
-              <h3 className="text-2xl font-bold mb-2">
+              <h3 className="text-2xl font-bold mb-2 text-white">
                 {isHovering ? 'Solte para analisar!' : 'Arraste seu PDF ou MIDI aqui'}
               </h3>
               <p className="text-zinc-400 mb-8 max-w-sm text-center">
@@ -151,7 +151,7 @@ export default function Home() {
               
               <button 
                 onClick={() => fileInputRef.current?.click()}
-                className="relative overflow-hidden rounded-full bg-white text-black px-8 py-3 font-semibold hover:scale-105 transition-transform active:scale-95 flex items-center gap-2 group/btn"
+                className="relative overflow-hidden rounded-full bg-white text-black px-8 py-3 font-semibold hover:bg-zinc-200 transition-all active:scale-95 flex items-center gap-2 group/btn shadow-sm shadow-white/10"
               >
                 {isAnalyzing ? (
                   <>
@@ -174,14 +174,14 @@ export default function Home() {
             <div className="flex items-center justify-between mb-8">
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider bg-purple-500/20 text-purple-300 rounded-md">Análise Concluída</span>
+                  <span className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider bg-white/10 text-white border border-white/20 rounded-md">Análise Concluída</span>
                   <span className="text-zinc-500 text-sm">{fileName}</span>
                 </div>
-                <h2 className="text-3xl font-bold">Resultado da Masterclass</h2>
+                <h2 className="text-3xl font-bold text-white">Resultado da Masterclass</h2>
               </div>
               <button 
                 onClick={() => setShowResults(false)}
-                className="text-sm font-medium text-zinc-400 hover:text-white flex items-center gap-2"
+                className="text-sm font-medium text-zinc-400 hover:text-white flex items-center gap-2 transition-colors"
               >
                 <Upload className="w-4 h-4" /> Novo Upload
               </button>
@@ -194,7 +194,7 @@ export default function Home() {
                     <a 
                       key={item.title} 
                       href={`#section-${i}`} 
-                      className="text-[15px] py-2 px-3 rounded-lg transition-all text-zinc-400 hover:text-white hover:bg-zinc-800/50 hover:pl-4 font-medium"
+                      className="text-[15px] py-2 px-3 rounded-lg transition-all text-zinc-400 hover:text-white hover:bg-zinc-900 hover:pl-4 font-medium"
                     >
                       {item.title}
                     </a>
@@ -235,9 +235,9 @@ function SectionCard({ id, icon, title, content, highlight = false }: { id: stri
   };
 
   return (
-    <div id={id} className={`p-6 rounded-2xl border ${highlight ? 'bg-gradient-to-br from-zinc-900 to-purple-900/20 border-purple-500/30 shadow-lg shadow-purple-500/5' : 'bg-zinc-900/40 border-zinc-800/80 hover:bg-zinc-900/80 transition-colors'}`}>
+    <div id={id} className={`p-6 rounded-2xl border ${highlight ? 'bg-zinc-900 border-zinc-600 shadow-lg shadow-white/5' : 'bg-zinc-900/40 border-zinc-800/80 hover:bg-zinc-900/80 transition-colors'}`}>
       <div className="flex items-center gap-3 mb-4">
-        <div className={`p-2 rounded-lg ${highlight ? 'bg-purple-500/20' : 'bg-zinc-800'}`}>
+        <div className={`p-2 rounded-lg ${highlight ? 'bg-white/10 text-white' : 'bg-zinc-800 text-zinc-400'}`}>
           {icon}
         </div>
         <h3 className="text-xl font-bold text-white tracking-tight">{title}</h3>

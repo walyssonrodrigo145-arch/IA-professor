@@ -72,28 +72,28 @@ export default function VoicingsPage() {
 
   const getIconForSection = (index: number) => {
     const icons = [
-      <Key className="w-5 h-5 text-blue-400" />,          // 1. Nome do acorde
-      <Hash className="w-5 h-5 text-purple-400" />,       // 2. Estrutura
-      <Fingerprint className="w-5 h-5 text-emerald-400" />,// 3. Mão esquerda
-      <Fingerprint className="w-5 h-5 text-indigo-400" />, // 4. Mão direita
-      <Layers className="w-5 h-5 text-pink-400" />,        // 5. Tensões usadas
-      <Ear className="w-5 h-5 text-cyan-400" />,           // 6. Tipo de sonoridade
-      <Lightbulb className="w-5 h-5 text-amber-400" />,    // 7. Aplicação prática
-      <ArrowRightLeft className="w-5 h-5 text-orange-400" />,// 8. Possíveis resoluções
-      <Spline className="w-5 h-5 text-rose-400" />,         // 9. Voice leading sugerido
-      <Piano className="w-5 h-5 text-indigo-400" />         // 10. Notas Exatas
+      <Key className="w-5 h-5 text-zinc-300" />,          // 1. Nome do acorde
+      <Hash className="w-5 h-5 text-zinc-300" />,       // 2. Estrutura
+      <Fingerprint className="w-5 h-5 text-zinc-300" />,// 3. Mão esquerda
+      <Fingerprint className="w-5 h-5 text-zinc-300" />, // 4. Mão direita
+      <Layers className="w-5 h-5 text-zinc-300" />,        // 5. Tensões usadas
+      <Ear className="w-5 h-5 text-zinc-300" />,           // 6. Tipo de sonoridade
+      <Lightbulb className="w-5 h-5 text-zinc-300" />,    // 7. Aplicação prática
+      <ArrowRightLeft className="w-5 h-5 text-zinc-300" />,// 8. Possíveis resoluções
+      <Spline className="w-5 h-5 text-zinc-300" />,         // 9. Voice leading sugerido
+      <Piano className="w-5 h-5 text-zinc-300" />         // 10. Notas Exatas
     ];
-    return icons[index] || <LayoutList className="w-5 h-5" />;
+    return icons[index] || <LayoutList className="w-5 h-5 text-zinc-300" />;
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans selection:bg-purple-500/30">
+    <div className="min-h-screen bg-black text-zinc-100 font-sans selection:bg-white/30 selection:text-black">
       <div className="max-w-5xl mx-auto px-6 py-12">
       <div className="text-center max-w-2xl mx-auto mb-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 text-purple-400 text-sm font-medium mb-4">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-white border border-white/20 text-sm font-medium mb-4">
           <Sparkles className="w-4 h-4" /> Inteligência Harmônica
         </div>
-        <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">
+        <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 text-white">
           Gerador de Voicings
         </h2>
         <p className="text-lg text-zinc-400 leading-relaxed">
@@ -104,8 +104,8 @@ export default function VoicingsPage() {
       {/* Input Area */}
       <div className="max-w-3xl mx-auto mb-12">
         <form onSubmit={handleSubmit} className="relative mb-6">
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-2xl blur-xl transition-all duration-300 opacity-50" />
-          <div className="relative bg-zinc-900 border border-zinc-800 rounded-2xl flex items-center p-2 shadow-2xl focus-within:border-purple-500/50 transition-colors">
+          <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-zinc-500/10 rounded-2xl blur-xl transition-all duration-300 opacity-30" />
+          <div className="relative bg-zinc-900 border border-zinc-800 rounded-2xl flex items-center p-2 shadow-2xl focus-within:border-zinc-500 transition-colors">
             <input 
               type="text" 
               value={prompt}
@@ -117,7 +117,7 @@ export default function VoicingsPage() {
             <button 
               type="submit"
               disabled={isGenerating || !prompt.trim()}
-              className="bg-purple-600 hover:bg-purple-500 disabled:opacity-50 disabled:hover:bg-purple-600 text-white p-3 rounded-xl transition-colors flex items-center justify-center"
+              className="bg-white hover:bg-zinc-200 disabled:opacity-50 disabled:hover:bg-white text-black p-3 rounded-xl transition-colors flex items-center justify-center shadow-sm"
             >
               {isGenerating ? <Activity className="w-6 h-6 animate-pulse" /> : <Send className="w-6 h-6" />}
             </button>
@@ -131,9 +131,9 @@ export default function VoicingsPage() {
               key={i}
               onClick={() => handleSuggestion(sug)}
               disabled={isGenerating}
-              className="text-sm bg-zinc-800/50 hover:bg-zinc-800 text-zinc-300 border border-zinc-700/50 rounded-full px-4 py-2 transition-colors flex items-center gap-2"
+              className="text-sm bg-zinc-900/50 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 rounded-full px-4 py-2 transition-colors flex items-center gap-2"
             >
-              <Music className="w-3 h-3 text-purple-400" /> {sug}
+              <Music className="w-3 h-3 text-zinc-400" /> {sug}
             </button>
           ))}
         </div>
@@ -143,7 +143,7 @@ export default function VoicingsPage() {
       {results.length > 0 && (
         <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 bg-zinc-900/30 border border-zinc-800/50 rounded-3xl p-8 shadow-2xl">
           <div className="flex items-center gap-3 mb-8 pb-6 border-b border-zinc-800">
-            <Piano className="w-8 h-8 text-purple-400" />
+            <Piano className="w-8 h-8 text-white" />
             <h3 className="text-2xl font-bold">Estrutura do Acorde</h3>
           </div>
 
@@ -169,7 +169,7 @@ export default function VoicingsPage() {
               return (
                 <div 
                   key={i} 
-                  className={`p-5 rounded-2xl bg-zinc-900 border border-zinc-800 hover:border-zinc-700 transition-colors ${i >= 2 && i <= 3 ? 'bg-gradient-to-br from-zinc-900 to-purple-900/10 border-purple-500/20' : ''}`}
+                  className={`p-5 rounded-2xl bg-zinc-900 border hover:border-zinc-500 transition-colors ${i >= 2 && i <= 3 ? 'border-zinc-400 shadow-sm shadow-white/5' : 'border-zinc-800'}`}
                 >
                   <div className="flex items-center gap-3 mb-3">
                     <div className="p-2 rounded-lg bg-zinc-800">
