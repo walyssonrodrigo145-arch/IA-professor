@@ -203,16 +203,16 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="h-[calc(100dvh-64px)] md:h-[calc(100vh-80px)] bg-black text-zinc-100 flex overflow-hidden relative font-sans">
+    <div className="h-[calc(100dvh-64px)] md:h-[calc(100vh-80px)] bg-white text-zinc-900 flex overflow-hidden relative font-sans">
       
       {/* Sidebar Overlay Mobile */}
       <div 
-        className={`fixed inset-0 bg-black/80 backdrop-blur-sm z-40 md:hidden transition-all duration-300 ${isMobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`} 
+        className={`fixed inset-0 bg-white/80 backdrop-blur-sm z-40 md:hidden transition-all duration-300 ${isMobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`} 
         onClick={() => setIsMobileMenuOpen(false)} 
       />
       
       {/* Sidebar Premium SaaS */}
-      <aside className={`absolute md:static top-0 left-0 h-full w-72 md:w-[280px] border-r border-zinc-800/50 bg-[#0a0a0a] z-50 flex flex-col transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+      <aside className={`absolute md:static top-0 left-0 h-full w-72 md:w-[280px] border-r border-zinc-200 bg-zinc-50 z-50 flex flex-col transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
         <div className="p-5 flex items-center justify-between">
           <button 
             onClick={() => {
@@ -222,20 +222,20 @@ export default function ChatPage() {
               setMessages([INITIAL_MESSAGE]);
               setIsMobileMenuOpen(false);
             }}
-            className="flex-1 bg-white text-black hover:bg-zinc-200 flex items-center justify-center gap-2 py-2.5 rounded-xl transition-all text-sm font-semibold group"
+            className="flex-1 bg-black text-white hover:bg-zinc-800 flex items-center justify-center gap-2 py-2.5 rounded-xl transition-all text-sm font-semibold group shadow-sm shadow-black/10"
           >
-            <MessageSquare className="w-4 h-4 text-zinc-900 group-hover:scale-110 transition-transform" /> Nova Conversa
+            <MessageSquare className="w-4 h-4 text-zinc-300 group-hover:scale-110 transition-transform" /> Nova Conversa
           </button>
-          <button className="md:hidden ml-3 text-zinc-400 hover:text-white transition-colors p-2 rounded-lg hover:bg-zinc-800" onClick={() => setIsMobileMenuOpen(false)}>
+          <button className="md:hidden ml-3 text-zinc-500 hover:text-black transition-colors p-2 rounded-lg hover:bg-zinc-200" onClick={() => setIsMobileMenuOpen(false)}>
             <X className="w-5 h-5" />
           </button>
         </div>
         
-        <div className="flex-1 overflow-y-auto px-3 space-y-6 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent">
+        <div className="flex-1 overflow-y-auto px-3 space-y-6 scrollbar-thin scrollbar-thumb-zinc-300 scrollbar-track-transparent">
           <div className="pt-2">
             <h3 className="text-[11px] font-semibold text-zinc-500 uppercase tracking-widest px-3 mb-2">Histórico Local</h3>
             <div className="space-y-[2px]">
-              {sessions.length === 0 && <p className="text-xs text-zinc-600 px-3 italic">Nenhuma conversa ainda.</p>}
+              {sessions.length === 0 && <p className="text-xs text-zinc-400 px-3 italic">Nenhuma conversa ainda.</p>}
               {sessions.map((session) => (
                 <button
                   key={session.id}
@@ -244,9 +244,9 @@ export default function ChatPage() {
                     localStorage.setItem('mentorMusicalSession', session.id);
                     setIsMobileMenuOpen(false);
                   }}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all truncate flex items-center gap-3 group ${sessionId === session.id ? 'bg-zinc-800 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900'}`}
+                  className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all truncate flex items-center gap-3 group ${sessionId === session.id ? 'bg-zinc-200 text-black font-medium' : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100'}`}
                 >
-                  <MessageSquare className={`w-3.5 h-3.5 flex-shrink-0 ${sessionId === session.id ? 'text-zinc-200' : 'text-zinc-500 group-hover:text-zinc-400'}`} />
+                  <MessageSquare className={`w-3.5 h-3.5 flex-shrink-0 ${sessionId === session.id ? 'text-zinc-700' : 'text-zinc-400 group-hover:text-zinc-600'}`} />
                   <span className="truncate">{session.title}</span>
                 </button>
               ))}
@@ -254,25 +254,25 @@ export default function ChatPage() {
           </div>
         </div>
 
-        <div className="p-4 border-t border-zinc-800/50 text-xs text-zinc-500 flex items-center gap-3 cursor-pointer hover:bg-zinc-900 transition-colors">
-          <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-white font-bold">M</div>
+        <div className="p-4 border-t border-zinc-200 text-xs text-zinc-500 flex items-center gap-3 cursor-pointer hover:bg-zinc-100 transition-colors">
+          <div className="w-8 h-8 rounded-full bg-zinc-200 flex items-center justify-center text-zinc-700 font-bold border border-zinc-300">M</div>
           <div>
-            <div className="text-zinc-200 font-medium text-sm">Meu Perfil</div>
+            <div className="text-zinc-900 font-medium text-sm">Meu Perfil</div>
             <div className="text-[11px] text-zinc-500">Plano Gratuito</div>
           </div>
         </div>
       </aside>
 
       {/* Main Chat Area SaaS */}
-      <main className="flex-1 flex flex-col h-full w-full max-w-full overflow-hidden bg-black relative">
+      <main className="flex-1 flex flex-col h-full w-full max-w-full overflow-hidden bg-white relative">
         
         {/* Mobile Header */}
-        <div className="md:hidden flex items-center justify-between p-3 border-b border-zinc-800/50 bg-black/80 backdrop-blur-xl flex-shrink-0 z-20">
-          <button onClick={() => setIsMobileMenuOpen(true)} className="text-zinc-400 p-2 hover:text-white rounded-lg hover:bg-zinc-800 transition-colors">
+        <div className="md:hidden flex items-center justify-between p-3 border-b border-zinc-200 bg-white/90 backdrop-blur-xl flex-shrink-0 z-20">
+          <button onClick={() => setIsMobileMenuOpen(true)} className="text-zinc-500 p-2 hover:text-black rounded-lg hover:bg-zinc-100 transition-colors">
             <Menu className="w-5 h-5" />
           </button>
-          <div className="font-semibold text-sm text-white flex items-center gap-2">
-             <Piano className="w-4 h-4 text-zinc-400" />
+          <div className="font-semibold text-sm text-black flex items-center gap-2">
+             <Piano className="w-4 h-4 text-zinc-600" />
              Mentor AI
           </div>
           <button 
@@ -282,7 +282,7 @@ export default function ChatPage() {
               setSessionId(newSession);
               setMessages([INITIAL_MESSAGE]);
             }} 
-            className="text-zinc-400 p-2 hover:text-white rounded-lg hover:bg-zinc-800 transition-colors"
+            className="text-zinc-500 p-2 hover:text-black rounded-lg hover:bg-zinc-100 transition-colors"
           >
             <MessageSquare className="w-5 h-5" />
           </button>
@@ -295,7 +295,7 @@ export default function ChatPage() {
           {messages.map((msg, idx) => (
             <div key={idx} className={`flex gap-4 md:gap-5 w-full max-w-3xl mx-auto ${msg.role === 'user' ? 'flex-row-reverse' : ''} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
               
-              <div className={`w-8 h-8 md:w-9 md:h-9 rounded-full flex-shrink-0 flex items-center justify-center border shadow-sm ${msg.role === 'assistant' ? 'bg-white border-zinc-200 text-black' : 'bg-zinc-900 border-zinc-800 text-zinc-400'}`}>
+              <div className={`w-8 h-8 md:w-9 md:h-9 rounded-full flex-shrink-0 flex items-center justify-center border shadow-sm ${msg.role === 'assistant' ? 'bg-black border-black text-white' : 'bg-white border-zinc-300 text-black'}`}>
                 {msg.role === 'assistant' ? <Piano className="w-4 h-4 md:w-5 md:h-5" /> : <User className="w-4 h-4 md:w-5 md:h-5" />}
               </div>
               
@@ -303,30 +303,30 @@ export default function ChatPage() {
                 <div className="flex items-center gap-2 mb-1.5 px-1">
                   <span className="text-[13px] font-medium text-zinc-500">{msg.role === 'assistant' ? 'Mentor AI' : 'Você'}</span>
                 </div>
-                <div className={`px-5 py-3.5 rounded-2xl text-[15px] leading-relaxed tracking-wide shadow-sm ${msg.role === 'assistant' ? 'bg-zinc-900/50 border border-zinc-800 text-zinc-200' : 'bg-white text-black font-medium'}`}>
+                <div className={`px-5 py-3.5 rounded-2xl text-[15px] leading-relaxed tracking-wide shadow-sm ${msg.role === 'assistant' ? 'bg-zinc-50 border border-zinc-200 text-zinc-800' : 'bg-black text-white font-medium'}`}>
                   {msg.content.split('\n').map((line, i) => {
                     let cleanLine = line.split('**').join('').split('$').join('');
                     if (cleanLine.trim() === '---') {
-                      return <hr key={i} className={`my-4 border-${msg.role==='assistant'?'zinc-800':'zinc-200'}`} />;
+                      return <hr key={i} className={`my-4 border-${msg.role==='assistant'?'zinc-200':'zinc-700'}`} />;
                     }
                     if (cleanLine.trim().startsWith('- ') || cleanLine.trim().startsWith('* ')) {
-                      return <li key={i} className={`ml-4 list-disc mb-1 ${msg.role==='assistant'?'text-zinc-300':'text-zinc-800'}`}>{cleanLine.trim().substring(2).split('*').join('')}</li>;
+                      return <li key={i} className={`ml-4 list-disc mb-1 ${msg.role==='assistant'?'text-zinc-700':'text-zinc-300'}`}>{cleanLine.trim().substring(2).split('*').join('')}</li>;
                     }
                     if (cleanLine.trim().startsWith('#')) {
-                      return <h3 key={i} className={`text-lg font-bold mt-4 mb-2 ${msg.role==='assistant'?'text-white':'text-black'}`}>{cleanLine.split('#').join('').trim().split('*').join('')}</h3>;
+                      return <h3 key={i} className={`text-lg font-bold mt-4 mb-2 ${msg.role==='assistant'?'text-black':'text-white'}`}>{cleanLine.split('#').join('').trim().split('*').join('')}</h3>;
                     }
                     // Handle Anexo tag
                     if (cleanLine.includes('[Anexo:')) {
-                      return <div key={i} className={`flex items-center gap-2 p-2 rounded-lg text-sm my-2 ${msg.role==='assistant'?'bg-zinc-800 text-zinc-300':'bg-zinc-100 text-zinc-600'}`}><FileText className="w-4 h-4"/> {cleanLine.replace('[Anexo: ', '').replace(']', '')}</div>
+                      return <div key={i} className={`flex items-center gap-2 p-2 rounded-lg text-sm my-2 ${msg.role==='assistant'?'bg-zinc-200 text-zinc-700':'bg-zinc-800 text-zinc-300'}`}><FileText className="w-4 h-4"/> {cleanLine.replace('[Anexo: ', '').replace(']', '')}</div>
                     }
-                    return <p key={i} className={`mb-2 min-h-[1rem] ${msg.role==='assistant'?'text-zinc-300':'text-zinc-800'}`}>{cleanLine.split('*').join('')}</p>;
+                    return <p key={i} className={`mb-2 min-h-[1rem] ${msg.role==='assistant'?'text-zinc-700':'text-white'}`}>{cleanLine.split('*').join('')}</p>;
                   })}
                   
                   {msg.role === 'assistant' && idx > 0 && (
                     <div className="mt-4 flex justify-end gap-2">
                       <button 
                         onClick={() => exportToText(msg.content)} 
-                        className="text-zinc-500 hover:text-zinc-300 transition-colors p-1.5 rounded-md hover:bg-zinc-800"
+                        className="text-zinc-400 hover:text-black transition-colors p-1.5 rounded-md hover:bg-zinc-200"
                         title="Baixar texto"
                       >
                         <Download className="w-4 h-4" />
@@ -341,17 +341,17 @@ export default function ChatPage() {
           
           {isTyping && (
             <div className="flex gap-4 md:gap-5 w-full max-w-3xl mx-auto animate-in fade-in duration-300">
-              <div className="w-8 h-8 md:w-9 md:h-9 rounded-full flex-shrink-0 flex items-center justify-center border bg-white border-zinc-200 text-black shadow-sm">
+              <div className="w-8 h-8 md:w-9 md:h-9 rounded-full flex-shrink-0 flex items-center justify-center border bg-black border-black text-white shadow-sm">
                 <Piano className="w-4 h-4 md:w-5 md:h-5" />
               </div>
               <div className="flex flex-col items-start max-w-[85%]">
                 <div className="flex items-center gap-2 mb-1.5 px-1">
                   <span className="text-[13px] font-medium text-zinc-500">Mentor AI</span>
                 </div>
-                <div className="px-5 py-4 rounded-2xl bg-zinc-900/50 border border-zinc-800 flex items-center gap-1.5 h-[52px]">
-                  <div className="w-1.5 h-1.5 rounded-full bg-zinc-500 animate-[bounce_1.4s_infinite_0s]" />
-                  <div className="w-1.5 h-1.5 rounded-full bg-zinc-500 animate-[bounce_1.4s_infinite_0.2s]" />
-                  <div className="w-1.5 h-1.5 rounded-full bg-zinc-500 animate-[bounce_1.4s_infinite_0.4s]" />
+                <div className="px-5 py-4 rounded-2xl bg-zinc-50 border border-zinc-200 flex items-center gap-1.5 h-[52px]">
+                  <div className="w-1.5 h-1.5 rounded-full bg-zinc-400 animate-[bounce_1.4s_infinite_0s]" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-zinc-400 animate-[bounce_1.4s_infinite_0.2s]" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-zinc-400 animate-[bounce_1.4s_infinite_0.4s]" />
                 </div>
               </div>
             </div>
@@ -359,25 +359,25 @@ export default function ChatPage() {
         </div>
 
         {/* SaaS Input Bar */}
-        <div className="p-3 md:p-6 bg-gradient-to-t from-black via-black to-transparent flex-shrink-0 pb-safe pt-10 z-20">
+        <div className="p-3 md:p-6 bg-gradient-to-t from-white via-white to-transparent flex-shrink-0 pb-safe pt-10 z-20">
           <form onSubmit={handleSubmit} className="max-w-3xl mx-auto relative flex flex-col gap-2">
             
             {attachedFile && (
-              <div className="absolute -top-12 left-4 bg-zinc-900 border border-zinc-700 rounded-xl p-2 px-3 flex items-center justify-between shadow-xl z-10 animate-in slide-in-from-bottom-2">
-                <div className="flex items-center gap-2 text-xs text-white font-medium">
-                  {attachedFile.mimeType.includes('audio') ? <Mic className="w-4 h-4 text-zinc-400" /> : <FileText className="w-4 h-4 text-zinc-400" />}
+              <div className="absolute -top-12 left-4 bg-white border border-zinc-200 rounded-xl p-2 px-3 flex items-center justify-between shadow-xl z-10 animate-in slide-in-from-bottom-2">
+                <div className="flex items-center gap-2 text-xs text-black font-medium">
+                  {attachedFile.mimeType.includes('audio') ? <Mic className="w-4 h-4 text-zinc-600" /> : <FileText className="w-4 h-4 text-zinc-600" />}
                   <span className="truncate max-w-[150px]">{attachedFile.name}</span>
                 </div>
-                <button type="button" onClick={() => setAttachedFile(null)} className="text-zinc-500 hover:text-white ml-3 transition-colors bg-zinc-800 rounded-full p-0.5">
+                <button type="button" onClick={() => setAttachedFile(null)} className="text-zinc-500 hover:text-black ml-3 transition-colors bg-zinc-100 rounded-full p-0.5">
                   <X className="w-3.5 h-3.5" />
                 </button>
               </div>
             )}
 
-            <div className={`relative bg-zinc-900 border border-zinc-800 rounded-2xl flex flex-col p-1.5 transition-all duration-300 ${isRecording ? 'border-red-500/50 ring-1 ring-red-500/20' : 'focus-within:border-zinc-600 focus-within:ring-1 focus-within:ring-zinc-700'}`}>
+            <div className={`relative bg-white border border-zinc-300 rounded-2xl flex flex-col p-1.5 transition-all duration-300 ${isRecording ? 'border-red-500/50 ring-1 ring-red-500/20' : 'focus-within:border-black focus-within:ring-1 focus-within:ring-black'}`}>
               
               {isRecording ? (
-                 <div className="flex-1 flex items-center justify-center py-5 text-red-400 font-medium animate-pulse text-sm">
+                 <div className="flex-1 flex items-center justify-center py-5 text-red-500 font-medium animate-pulse text-sm">
                    Gravando sua voz... Clique no ícone vermelho para parar.
                  </div>
               ) : (
@@ -391,7 +391,7 @@ export default function ChatPage() {
                     }
                   }}
                   placeholder="Envie uma partitura (PDF) ou pergunte algo..."
-                  className="w-full bg-transparent border-none outline-none px-3 py-3 text-[15px] text-white placeholder-zinc-500 resize-none max-h-32 min-h-[52px]"
+                  className="w-full bg-transparent border-none outline-none px-3 py-3 text-[15px] text-black placeholder-zinc-400 resize-none max-h-32 min-h-[52px]"
                   rows={1}
                   disabled={isTyping}
                 />
@@ -401,11 +401,11 @@ export default function ChatPage() {
                 <div className="flex items-center gap-1">
                   <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="application/pdf,image/*,audio/*" />
                   
-                  <button type="button" onClick={() => fileInputRef.current?.click()} className="p-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors tooltip-wrapper" title="Anexar PDF, Imagem ou Áudio">
+                  <button type="button" onClick={() => fileInputRef.current?.click()} className="p-2 text-zinc-500 hover:text-black hover:bg-zinc-100 rounded-lg transition-colors tooltip-wrapper" title="Anexar PDF, Imagem ou Áudio">
                     <Paperclip className="w-4 h-4 md:w-5 md:h-5" />
                   </button>
 
-                  <button type="button" onClick={toggleRecording} className={`p-2 transition-colors rounded-lg ${isRecording ? 'text-red-500 bg-red-500/10' : 'text-zinc-400 hover:text-white hover:bg-zinc-800'}`} title="Gravar Áudio">
+                  <button type="button" onClick={toggleRecording} className={`p-2 transition-colors rounded-lg ${isRecording ? 'text-red-600 bg-red-600/10' : 'text-zinc-500 hover:text-black hover:bg-zinc-100'}`} title="Gravar Áudio">
                     <Mic className="w-4 h-4 md:w-5 md:h-5" />
                   </button>
                 </div>
@@ -413,7 +413,7 @@ export default function ChatPage() {
                 <button 
                   type="submit"
                   disabled={isTyping || (!input.trim() && !attachedFile)}
-                  className={`p-2 md:px-4 md:py-2 rounded-xl transition-all flex items-center justify-center flex-shrink-0 gap-2 font-semibold text-sm ${(!input.trim() && !attachedFile) ? 'bg-zinc-800 text-zinc-500' : 'bg-white text-black hover:bg-zinc-200 shadow-sm'}`}
+                  className={`p-2 md:px-4 md:py-2 rounded-xl transition-all flex items-center justify-center flex-shrink-0 gap-2 font-semibold text-sm ${(!input.trim() && !attachedFile) ? 'bg-zinc-100 text-zinc-400' : 'bg-black text-white hover:bg-zinc-800 shadow-sm shadow-black/10'}`}
                 >
                   <span className="hidden md:inline">Enviar</span>
                   <Send className="w-4 h-4" />
@@ -422,7 +422,7 @@ export default function ChatPage() {
 
             </div>
             <div className="text-center mt-1.5">
-              <p className="text-[10px] md:text-xs text-zinc-600">A IA pode errar. O upload suporta arquivos PDF até 10MB para análise de partituras.</p>
+              <p className="text-[10px] md:text-xs text-zinc-400">A IA pode errar. O upload suporta arquivos PDF até 10MB para análise de partituras.</p>
             </div>
           </form>
         </div>

@@ -5,7 +5,7 @@ import { Piano, Music } from 'lucide-react';
 import "./globals.css";
 
 export const viewport: Viewport = {
-  themeColor: '#000000',
+  themeColor: '#ffffff',
 };
 
 const geistSans = Geist({
@@ -33,7 +33,7 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-black text-zinc-100 font-sans selection:bg-white/30 selection:text-black">
+      <body className="min-h-full flex flex-col bg-white text-zinc-900 font-sans selection:bg-black/10 selection:text-black">
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -47,30 +47,30 @@ export default function RootLayout({
             `,
           }}
         />
-        <header className="border-b border-white/5 bg-black/80 backdrop-blur-xl sticky top-0 z-50">
+        <header className="border-b border-zinc-200 bg-white/90 backdrop-blur-xl sticky top-0 z-50">
           <div className="max-w-6xl mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between">
             <div className="flex items-center gap-2 md:gap-3">
-              <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-white flex items-center justify-center shadow-lg shadow-white/5">
-                <Piano className="text-black w-5 h-5 md:w-6 md:h-6" />
+              <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-black flex items-center justify-center shadow-md shadow-black/5">
+                <Piano className="text-white w-5 h-5 md:w-6 md:h-6" />
               </div>
               <div>
-                <h1 className="font-bold text-lg md:text-xl tracking-tight text-white">Gospel Keys <span className="font-light text-zinc-400">AI</span></h1>
+                <h1 className="font-bold text-lg md:text-xl tracking-tight text-black">Gospel Keys <span className="font-light text-zinc-500">AI</span></h1>
                 <p className="hidden md:block text-xs text-zinc-500 font-medium tracking-widest uppercase">Masterclass & Voicings</p>
               </div>
             </div>
             <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
-              <Link href="/" className="text-zinc-400 hover:text-white transition-colors flex items-center gap-2">
+              <Link href="/" className="text-zinc-500 hover:text-black transition-colors flex items-center gap-2">
                  Análise de Partituras
               </Link>
-              <Link href="/voicings" className="text-zinc-400 hover:text-white transition-colors flex items-center gap-2">
+              <Link href="/voicings" className="text-zinc-500 hover:text-black transition-colors flex items-center gap-2">
                  Gerador de Voicings
               </Link>
-              <Link href="/chat" className="bg-white text-black hover:bg-zinc-200 px-4 py-2 rounded-lg transition-all flex items-center gap-2 font-semibold shadow-sm shadow-white/10">
+              <Link href="/chat" className="bg-black text-white hover:bg-zinc-800 px-4 py-2 rounded-lg transition-all flex items-center gap-2 font-semibold shadow-sm shadow-black/10">
                 <Music className="w-4 h-4" /> Mentor Musical
               </Link>
             </nav>
             <div className="md:hidden flex items-center">
-               <Link href="/chat" className="text-black bg-white px-3 py-1.5 rounded-lg text-sm font-bold flex items-center gap-2 shadow-sm shadow-white/10">
+               <Link href="/chat" className="text-white bg-black px-3 py-1.5 rounded-lg text-sm font-bold flex items-center gap-2 shadow-sm shadow-black/10">
                  Mentor
                </Link>
             </div>
