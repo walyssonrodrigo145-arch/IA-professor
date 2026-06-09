@@ -165,7 +165,7 @@ function ReferenceChatContent() {
       }
       
       if (!res.ok) {
-        const errorMsg = typeof data.error === 'object' ? (data.error.message || JSON.stringify(data.error)) : data.error;
+        const errorMsg = data.details || (typeof data.error === 'object' ? (data.error.message || JSON.stringify(data.error)) : data.error);
         throw new Error(errorMsg || 'Erro desconhecido');
       }
 

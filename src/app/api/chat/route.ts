@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     // Map messages to Gemini's format
     const geminiHistory = messages.map((msg: any, index: number) => {
@@ -110,10 +110,23 @@ export async function POST(req: NextRequest) {
       };
     });
 
-    // Gemini requires the history to start with a 'user' message.
-    let validHistory = [...geminiHistory];
-    if (validHistory.length > 0 && validHistory[0].role === 'model') {
-      validHistory.shift();
+    let rawHistory = geminiHistory.slice(0, -1);
+    
+    // We must ensure the history starts with 'user' and alternates.
+    let cleanedHistory: any[] = [];
+    let nextExpectedRole = 'user';
+    
+    for (const msg of rawHistory) {
+      if (msg.role === nextExpectedRole) {
+        cleanedHistory.push(msg);
+        nextExpectedRole = nextExpectedRole === 'user' ? 'model' : 'user';
+      }
+    }
+    
+    // If cleanedHistory ends with 'user', we need to remove it so it ends with 'model' 
+    // because the very next message we send is 'user'
+    if (cleanedHistory.length > 0 && cleanedHistory[cleanedHistory.length - 1].role === 'user') {
+      cleanedHistory.pop();
     }
 
     const chat = model.startChat({
@@ -121,7 +134,7 @@ export async function POST(req: NextRequest) {
         role: 'system',
         parts: [{ text: SYSTEM_PROMPT }]
       },
-      history: validHistory.slice(0, -1), // All except the very last user message
+      history: cleanedHistory,
     });
 
     const latestMessage = geminiHistory[geminiHistory.length - 1];
