@@ -156,8 +156,9 @@ export async function POST(req: NextRequest) {
 
   } catch (error: any) {
     console.error('Erro no Chat:', error);
+    const errorDetails = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
-      { error: 'Erro ao conversar com a IA.', details: error.message },
+      { error: `Erro na IA: ${errorDetails}` },
       { status: 500 }
     );
   }
