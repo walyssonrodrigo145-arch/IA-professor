@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
 
     // Map messages to Gemini's format
     const geminiHistory = messages.map((msg: any, index: number) => {
