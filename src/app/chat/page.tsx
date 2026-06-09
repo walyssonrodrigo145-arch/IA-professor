@@ -177,10 +177,16 @@ export default function ChatPage() {
         setTimeout(() => loadSessions(deviceId), 1000);
       }
 
-      const data = await res.json();
+      let data;
+      try {
+        data = await res.json();
+      } catch (e) {
+        throw new Error(`Erro do Servidor (${res.status}): A resposta falhou. Se enviou um arquivo, ele pode ser muito grande para o servidor.`);
+      }
       
       if (!res.ok) {
-        throw new Error(data.error || 'Erro desconhecido');
+        const errorMsg = typeof data.error === 'object' ? (data.error.message || JSON.stringify(data.error)) : data.error;
+        throw new Error(errorMsg || 'Erro desconhecido');
       }
 
       setMessages([...newMessages, { role: 'assistant', content: data.result }]);
