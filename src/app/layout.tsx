@@ -65,6 +65,9 @@ export default function RootLayout({
               <Link href="/voicings" className="text-zinc-500 hover:text-black transition-colors flex items-center gap-2">
                  Gerador de Voicings
               </Link>
+              <Link href="/references" className="text-zinc-500 hover:text-black transition-colors flex items-center gap-2">
+                 Minhas Referências
+              </Link>
               <Link href="/chat" className="bg-black text-white hover:bg-zinc-800 px-4 py-2 rounded-lg transition-all flex items-center gap-2 font-semibold shadow-sm shadow-black/10">
                 <Music className="w-4 h-4" /> Mentor Musical
               </Link>

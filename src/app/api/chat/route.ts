@@ -72,17 +72,34 @@ export async function POST(req: NextRequest) {
       }
     });
 
+    // Check if this session belongs to a Reference
+    let fileToInject = attachedFile;
+    if (!fileToInject) {
+      const ref = await prisma.referenceFile.findUnique({
+        where: { sessionId: sessionId }
+      });
+      if (ref) {
+        fileToInject = {
+          data: ref.fileData,
+          mimeType: ref.mimeType,
+          name: ref.fileName
+        };
+      }
+    }
+
     const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
 
     // Map messages to Gemini's format
     const geminiHistory = messages.map((msg: any, index: number) => {
       const parts: any[] = [{ text: msg.content || '' }];
       
-      if (index === messages.length - 1 && attachedFile) {
+      // Inject the file either if it was just attached, or if it belongs to the reference
+      // We inject it in the last message so Gemini processes it with the current prompt
+      if (index === messages.length - 1 && fileToInject) {
          parts.push({
            inlineData: {
-             data: attachedFile.data,
-             mimeType: attachedFile.mimeType
+             data: fileToInject.data,
+             mimeType: fileToInject.mimeType
            }
          });
       }
@@ -94,7 +111,6 @@ export async function POST(req: NextRequest) {
     });
 
     // Gemini requires the history to start with a 'user' message.
-    // The frontend sends an initial hardcoded 'assistant' greeting, so we remove it.
     let validHistory = [...geminiHistory];
     if (validHistory.length > 0 && validHistory[0].role === 'model') {
       validHistory.shift();

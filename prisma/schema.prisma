@@ -428,3 +428,16 @@ enum timeline_category {
   repertorio
   geral
 }
+
+model ReferenceFile {
+  id        String   @id @default(uuid())
+  title     String   @db.VarChar(255)
+  fileName  String   @db.VarChar(255)
+  mimeType  String   @db.VarChar(100)
+  fileData  String   @db.Text
+  deviceId  String?  @db.VarChar(255)
+  createdAt DateTime @default(now())
+  
+  sessionId String?  @unique
+}
+
