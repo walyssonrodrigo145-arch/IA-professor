@@ -139,9 +139,35 @@ export async function POST(req: NextRequest) {
 
     const latestMessage = geminiHistory[geminiHistory.length - 1];
     
-    // Send the latest message (array of parts to support multimodal)
-    const result = await chat.sendMessage(latestMessage.parts);
-    const responseText = result.response.text();
+    // Send the latest message with automatic retry for 503 overload errors
+    let responseText = '';
+    let retryCount = 0;
+    let maxRetries = 3;
+    let lastError = null;
+
+    while (retryCount < maxRetries) {
+      try {
+        const result = await chat.sendMessage(latestMessage.parts);
+        responseText = result.response.text();
+        break; // Success!
+      } catch (err: any) {
+        lastError = err;
+        const errMsg = err.message || '';
+        if (errMsg.includes('503') || errMsg.includes('Overloaded')) {
+          console.warn(`[Retry ${retryCount + 1}/${maxRetries}] Google API overloaded. Retrying...`);
+          retryCount++;
+          // Wait 2.5 seconds before retrying
+          await new Promise(res => setTimeout(res, 2500));
+        } else {
+          // If it's not an overload error, throw immediately
+          throw err;
+        }
+      }
+    }
+
+    if (!responseText) {
+      throw lastError;
+    }
 
     // Save assistant message to DB
     await prisma.mentorMessage.create({
